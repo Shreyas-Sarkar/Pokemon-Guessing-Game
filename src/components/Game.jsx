@@ -95,7 +95,7 @@ const Game = () => {
   };
 
   // Generate alphabet buttons
-  const alphabet = 'abcdefghijklmnopqrstuvwxyz'.split('');
+  const alphabet = 'abcdefghijklmnopqrstuvwxyz-'.split('');
   const alphabetButtons = alphabet.map(letter => (
     <button 
       key={letter} 
