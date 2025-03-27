@@ -1,0 +1,182 @@
+.game-container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 20px;
+  font-family: 'Arial', sans-serif;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+h1 {
+  color: #3c5aa6;
+  margin-bottom: 20px;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.pokemon-container {
+  width: 300px;
+  height: 300px;
+  margin: 20px auto;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: #f0f0f0;
+  border-radius: 50%;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  overflow: hidden;
+}
+
+.pokemon-image {
+  max-width: 100%;
+  max-height: 100%;
+  transition: filter 0.3s ease;
+  animation: slowZoom 4s infinite ease-in-out;
+}
+
+
+
+.pokemon-name {
+  margin: 20px 0;
+  display: flex;
+  justify-content: center;
+  gap: 5px;
+}
+
+.letter {
+  font-size: 24px;
+  font-weight: bold;
+  width: 30px;
+  display: inline-block;
+  text-align: center;
+  margin: 0 2px;
+  padding-bottom: 5px;
+  border-bottom: 2px solid #3c5aa6;
+}
+
+.letter.hidden {
+  color: transparent;
+}
+
+.letter.revealed {
+  color: #3c5aa6;
+  animation: bounce 0.5s ease;
+}
+
+@keyframes bounce {
+  0%, 20%, 50%, 80%, 100% {transform: translateY(0);}
+  40% {transform: translateY(-10px);}
+  60% {transform: translateY(-5px);}
+}
+
+.letter-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+  margin: 20px 0;
+  max-width: 500px;
+}
+
+.letter-btn {
+  width: 40px;
+  height: 40px;
+  font-size: 18px;
+  font-weight: bold;
+  border: none;
+  border-radius: 5px;
+  background-color: #f2f2f2;
+  color: #333;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.letter-btn:hover:not(:disabled) {
+  background-color: #e6e6e6;
+  transform: translateY(-2px);
+}
+
+.letter-btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+.letter-btn.correct {
+  background-color: #4caf50;
+  color: white;
+}
+
+.letter-btn.incorrect {
+  background-color: #f44336;
+  color: white;
+}
+
+.game-status {
+  margin: 15px 0;
+  text-align: center;
+}
+
+.win-message {
+  color: #4caf50;
+  font-size: 24px;
+  font-weight: bold;
+  margin-bottom: 10px;
+  animation: fadeIn 1s ease;
+}
+
+.lose-message {
+  color: #f44336;
+  font-size: 24px;
+  font-weight: bold;
+  margin-bottom: 10px;
+  animation: fadeIn 1s ease;
+}
+
+@keyframes fadeIn {
+  from {opacity: 0;}
+  to {opacity: 1;}
+}
+
+.wrong-guesses {
+  font-size: 18px;
+  color: #666;
+}
+
+.reset-btn {
+  margin-top: 20px;
+  padding: 10px 20px;
+  font-size: 18px;
+  font-weight: bold;
+  background-color: #ffcb05;
+  color: #3c5aa6;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.reset-btn:hover {
+  background-color: #ffd74c;
+  transform: translateY(-2px);
+}
+
+.loading {
+  font-size: 20px;
+  color: #666;
+  text-align: center;
+  margin: 50px 0;
+  animation: pulse 1.5s infinite ease-in-out;
+}
+
+@keyframes pulse {
+  0% {opacity: 0.6;}
+  50% {opacity: 1;}
+  100% {opacity: 0.6;}
+}
+
+@keyframes slowZoom {
+  0% {transform: scale(1);}
+  50% {transform: scale(1.05);}
+  100% {transform: scale(1);}
+}
