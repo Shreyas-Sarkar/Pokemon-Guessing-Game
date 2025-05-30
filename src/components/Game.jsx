@@ -1,5 +1,8 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
+import openingAudio from '../utils/opening.mp3';
+import emojiAudio from '../utils/emoji.mp3';
+import winAudio from '../utils/win.mp3';
 import '../styles/Game.css';
 
 const Game = () => {
@@ -8,13 +11,16 @@ const Game = () => {
   const [guessedLetters, setGuessedLetters] = useState([]);
   const [wrongGuesses, setWrongGuesses] = useState(0);
   const [correctGuesses, setCorrectGuesses] = useState(0);
-  const [gameStatus, setGameStatus] = useState('playing'); // 'playing', 'won', 'lost'
+  const [gameStatus, setGameStatus] = useState('playing');
+  const [audioStarted, setAudioStarted] = useState(false);
   const maxWrongGuesses = 6;
 
-  // Generate a random Pokemon ID (1-898 for all Pokemon up to Gen 8)
+  const openingRef = useRef(null);
+  const emojiRef = useRef(null);
+  const winRef = useRef(null);
+
   const getRandomPokemonId = () => Math.floor(Math.random() * 898) + 1;
 
-  // Fetch a random Pokemon
   const fetchRandomPokemon = async () => {
     try {
       setLoading(true);
@@ -23,70 +29,89 @@ const Game = () => {
       setPokemon(response.data);
       setLoading(false);
     } catch (error) {
-      console.error('Error fetching Pokemon:', error);
-      // Try again if there's an error
       fetchRandomPokemon();
     }
   };
 
-  // Initialize the game
   useEffect(() => {
     fetchRandomPokemon();
-    // Play game start sound when component mounts
   }, []);
 
-  // Handle letter guess
+  useEffect(() => {
+    if (audioStarted && openingRef.current) {
+      openingRef.current.loop = true;
+      openingRef.current.volume = 0.5;
+      openingRef.current.play().catch(() => {});
+    }
+    return () => {
+      if (openingRef.current) {
+        openingRef.current.pause();
+        openingRef.current.currentTime = 0;
+      }
+    };
+  }, [audioStarted]);
+
+  useEffect(() => {
+    if (!audioStarted) return;
+    if (gameStatus === 'won' && winRef.current) {
+      openingRef.current && openingRef.current.pause();
+      winRef.current.currentTime = 0;
+      winRef.current.play().catch(() => {});
+    }
+    if (gameStatus === 'playing' && openingRef.current) {
+      openingRef.current.play().catch(() => {});
+    }
+  }, [gameStatus, audioStarted]);
+
+  const handleUserInteraction = () => {
+    if (!audioStarted) setAudioStarted(true);
+  };
+
   const handleGuess = (letter) => {
     if (gameStatus !== 'playing') return;
-    
-    // If letter was already guessed, do nothing
     if (guessedLetters.includes(letter)) return;
-    
+    if (emojiRef.current) {
+      emojiRef.current.currentTime = 0;
+      emojiRef.current.play().catch(() => {});
+    }
     const newGuessedLetters = [...guessedLetters, letter];
     setGuessedLetters(newGuessedLetters);
-    
-    // Check if the guessed letter is in the Pokemon name
     if (!pokemon.name.includes(letter)) {
-      // Play incorrect sound
-      
       const newWrongGuesses = wrongGuesses + 1;
       setWrongGuesses(newWrongGuesses);
-      
-      // Check if player lost
       if (newWrongGuesses >= maxWrongGuesses) {
         setGameStatus('lost');
       }
     } else {
-      // Count unique correct letters guessed
       const pokemonNameLetters = [...new Set(pokemon.name.split(''))];
       const newCorrectGuesses = pokemonNameLetters.filter(char => 
         newGuessedLetters.includes(char)
       ).length;
-      
       setCorrectGuesses(newCorrectGuesses);
-      
-      // Play correct sound
-      
-      // Check if player won (all letters in the name have been guessed)
       if (newCorrectGuesses === pokemonNameLetters.length) {
         setGameStatus('won');
       }
     }
   };
 
-  // Reset the game
   const resetGame = () => {
     setGuessedLetters([]);
     setWrongGuesses(0);
     setCorrectGuesses(0);
     setGameStatus('playing');
     fetchRandomPokemon();
+    if (openingRef.current && audioStarted) {
+      openingRef.current.currentTime = 0;
+      openingRef.current.play().catch(() => {});
+    }
+    if (winRef.current) {
+      winRef.current.pause();
+      winRef.current.currentTime = 0;
+    }
   };
 
-  // Display the Pokemon name with underscores for unguessed letters
   const displayPokemonName = () => {
     if (!pokemon) return '';
-    
     return pokemon.name.split('').map((letter, index) => {
       return guessedLetters.includes(letter) ? 
         <span key={index} className="letter revealed">{letter}</span> : 
@@ -94,8 +119,7 @@ const Game = () => {
     });
   };
 
-  // Generate alphabet buttons
-  const alphabet = 'abcdefghijklmnopqrstuvwxyz'.split('');
+  const alphabet = 'abcdefghijklmnopqrstuvwxyz-'.split('');
   const alphabetButtons = alphabet.map(letter => (
     <button 
       key={letter} 
@@ -113,9 +137,11 @@ const Game = () => {
   }
 
   return (
-    <div className="game-container">
+    <div className="game-container" onClick={handleUserInteraction} tabIndex={0}>
+      <audio ref={openingRef} src={openingAudio} />
+      <audio ref={emojiRef} src={emojiAudio} />
+      <audio ref={winRef} src={winAudio} />
       <h1>Who's That Pokemon?</h1>
-      
       <div className="pokemon-container">
         {pokemon && (
           <img 
@@ -129,21 +155,17 @@ const Game = () => {
           />
         )}
       </div>
-      
       <div className="pokemon-name">
         {displayPokemonName()}
       </div>
-      
       <div className="game-status">
         {gameStatus === 'won' && <div className="win-message">You won! It's {pokemon.name}!</div>}
         {gameStatus === 'lost' && <div className="lose-message">You lost! It was {pokemon.name}!</div>}
         <div className="wrong-guesses">Wrong guesses: {wrongGuesses}/{maxWrongGuesses}</div>
       </div>
-      
       <div className="letter-buttons">
         {alphabetButtons}
       </div>
-      
       {gameStatus !== 'playing' && (
         <button className="reset-btn" onClick={resetGame}>Play Again</button>
       )}
