@@ -68,7 +68,6 @@ yarn build
 - Difficulty levels (different generations or types of Pokemon)
 - Score tracking and leaderboards
 - Hint system
-- Mobile-responsive design improvements
 
 ## License
 This project is open source and available under the MIT License.
